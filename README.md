@@ -2,6 +2,12 @@
 
 Translate the lyrics of your favorite song your way.
 
+## Tools
+
+- Node, Express
+- Vue.js
+- Bootstrap
+
 ## Demo
 [Click here :)](https://deerics.herokuapp.com/)
 
