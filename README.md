@@ -8,9 +8,6 @@ Translate the lyrics of your favorite song your way.
 - Vue.js
 - Bootstrap
 
-## Demo
-[Click here :)](https://deerics.herokuapp.com/)
-
 ## Setup
 
 You will need [Node](https://nodejs.org/en/) installed.
