@@ -15,53 +15,53 @@
             <b-button variant="outline-primary" v-if="loadMore" @click="loadLyrics">Carregar Mais Letras</b-button>
         </b-row>
 
+
         <!-- Editar dados do usuário -->
-        <b-button v-b-toggle.collapse-1 variant="primary" class="mb-3 mt-3" v-if="user && user.id == userInfo.id">Editar perfil</b-button>
-        <b-collapse id="collapse-1" v-if="user && user.id == userInfo.id">
-            <b-form>
-                <b-row>
-                    <b-col md="6" sm="12">
-                        <b-form-group label="Nome:" label-for="user-name">
+        <div v-if="user && user.id == userInfo.id">
+            <b-button v-b-modal.modal-prevent-closing variant="primary" class="mb-3 mt-3">Editar perfil</b-button>
+
+            <b-modal
+            id="modal-prevent-closing"
+            title="Editar perfil"
+            hide-footer
+            >
+                <b-form @submit="updateUser()">
+                    <b-form-group label="Nome:" label-for="user-name">
                             <b-form-input id="user-name" type="text"
                                 v-model="userUpdate.name" required
                                 placeholder="Informe o nome do usuário" />
-                        </b-form-group>
-                    </b-col>
-                    <b-col md="6" sm="12">
-                        <b-form-group label="E-mail:" label-for="user-email">
+                    </b-form-group>
+
+                    <b-form-group label="E-mail:" label-for="user-email">
                             <b-form-input id="user-email" type="text"
                                 v-model="userUpdate.email" required
                                 placeholder="Informe o e-mail do usuário" />
-                        </b-form-group>
-                    </b-col>
-                </b-row>
+                    </b-form-group>
 
-                <b-row>
-                    <b-col md="6" sm="12">
-                        <b-form-group label="Senha*:" label-for="user-newpassword">
+                    <b-button v-b-toggle.collapse-2 variant="primary" class="mb-3">Mudar senha</b-button>
+                    <b-collapse id="collapse-2">
+                        <b-form-group label="Nova senha:" label-for="user-newpassword">
                             <b-form-input id="user-newpassword" type="password"
-                                v-model="userUpdate.password" required
-                                placeholder="Informe a nova senha do usuário" />
+                                v-model="userUpdate.password"
+                                placeholder="Informe a sua nova senha" />
                         </b-form-group>
-                    </b-col>
-                    <b-col md="6" sm="12">
-                        <b-form-group label="Confirmação da senha*:" 
-                            label-for="user-confirm-newpassword">
-                            <b-form-input id="user-confirm-newpassword" type="password"
-                                v-model="userUpdate.confirmPassword" required
-                                placeholder="Confirme a nova senha do usuário" />
-                        </b-form-group>
-                    </b-col>
-                </b-row>
 
-                <b-row class="mt-2">
-                    <b-col xs="12">
-                        <b-button variant="primary"
-                            @click="updateUser">Salvar</b-button>
-                    </b-col>
-                </b-row> 
-            </b-form>
-        </b-collapse>
+                        <b-form-group label="Confirmação da senha:" 
+                                label-for="user-confirm-newpassword">
+                                <b-form-input id="user-confirm-newpassword" type="password"
+                                    v-model="userUpdate.confirmPassword"
+                                    placeholder="Confirme a sua nova senha" />
+                        </b-form-group>
+                    </b-collapse>
+                
+                    <b-row class="mt-2" align-h="end">
+                            <b-button class="mr-2" variant="outline-danger" @click="$bvModal.hide('modal-prevent-closing'), loadUserInfo()">Cancelar</b-button>
+                            <b-button type="submit" class="mr-3" variant="outline-success">Salvar</b-button>
+                    </b-row>
+                </b-form>
+            </b-modal>
+        </div>
+ 
     </div>
 </template>
 
@@ -69,7 +69,7 @@
     import LyricCard from '../cards/LyricCard'
     import PageTitle from '../template/PageTitle'
 
-    import { baseApiUrl, showError } from '@/global'
+    import { baseApiUrl, showError, userKey } from '@/global'
     import { mapState } from 'vuex'
     import axios from 'axios'
 
@@ -99,6 +99,7 @@
                 .then(res => {
                     this.loading = false
                     this.userInfo = res.data
+                    this.userUpdate = { name: res.data.name, email: res.data.email}
                 })
                 .catch(error => console.log(error))
             },
@@ -115,6 +116,9 @@
             updateUser() {
                 axios.put(`${baseApiUrl}/users/${this.userId}`, this.userUpdate)
                 .then(() => {
+                        this.user.name = this.userUpdate.name
+                        localStorage.setItem(userKey, JSON.stringify(this.user))
+
                         this.$toasted.global.defaultSuccess()
                         this.userUpdate = {}
                         this.loadUserInfo()

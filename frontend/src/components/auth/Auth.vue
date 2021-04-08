@@ -14,6 +14,12 @@
             <b-button class="mt-2" variant="primary" v-if="showSignup" @click="signup">Registrar-se</b-button>
             <b-button class="mt-2" variant="primary" v-else @click="signin">Entrar</b-button>
 
+            <b-button class="mt-4" variant="info" @click.prevent="loginWithFacebook" >
+                <i class="fa fa-facebook pr-2"></i> Entrar com o Facebook
+            </b-button>
+            <!--
+            <div class="fb-login-button" data-width="" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false"></div>
+            -->
             <a href @click.prevent="showSignup = !showSignup">
                 <span v-if="showSignup">Já tem cadastro? Faça o Login!</span>
                 <span v-else>Não tem cadastro? Registre-se aqui!</span>
@@ -25,6 +31,7 @@
 <script>
     import axios from 'axios'
     import { baseApiUrl, showError, userKey } from '@/global'
+    import { initFbsdk } from '@/config/fb.js'
 
     export default {
         name: 'Auth',
@@ -33,6 +40,9 @@
                 showSignup: false,
                 user: {}
             }
+        },
+        mounted() {
+            initFbsdk() 
         },
         methods: {
             signin() {
@@ -43,6 +53,25 @@
                         this.$router.push({ path: '/' })
                     })
                     .catch(showError)
+            },
+            loginWithFacebook () {
+                try{
+                    window.FB.login(response => {
+                        axios.post(`${baseApiUrl}/facebook`, { accessToken: response.authResponse.accessToken})
+                            .then(res => {
+                                this.$store.commit('setUser', res.data)
+                                localStorage.setItem(userKey, JSON.stringify(res.data))
+                                this.$router.push({ path: '/' })
+                            })
+                            .catch(showError)
+                    }, {
+                        scope: 'email', 
+                        return_scopes: true
+                    })
+                } catch(msg){
+                    showError(msg)
+                }
+                
             },
             signup() {
                 axios.post(`${baseApiUrl}/signup`, this.user)
@@ -57,7 +86,9 @@
     }
 </script>
 
-<style>
+<style lang="scss">
+    @import "../../assets/styles/custom.scss";
+    
     .auth-content {
         height: 100%;
         display: flex;
@@ -65,7 +96,7 @@
         align-items: center;
     }
     .auth-box {
-        background-color: #FFF;
+        background-color: $background;
         width: 350px;
         padding: 35px;
         border-radius: 5px;
@@ -80,7 +111,6 @@
         margin-top: 10px;
         margin-bottom: 15px;
     }
-    
     .auth-box a {
         margin-top: 35px;
     }

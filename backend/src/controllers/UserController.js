@@ -45,7 +45,12 @@ module.exports = {
             validation.existsOrError(user.confirmPassword, 'Confirmação de Senha inválida')
             validation.equalsOrError(user.password, user.confirmPassword, 'Senhas não conferem')
 
+            const regex = /\W/ // Proibe tudo, exceto letras, numeros e underline
             user.nickname = user.nickname.replace(' ', '').toLowerCase()
+
+            if (regex.test(user.nickname)) {
+                validation.notExistsOrError(user.nickname, 'Apelido com caracteres proibidos')
+            }
             
             const userEmailFromDB = await connection('users')
                 .where('email', user.email)
@@ -73,53 +78,59 @@ module.exports = {
     },
     
     async update (req, res) {
-        user = req.body
-        user.id = req.params.id
+        const user = req.body
 
         if(!req.user || !req.user.admin) user.admin = false
 
-        const userId = await connection('users')
+        const userIdfromDB = await connection('users')
                 .where('id', req.user.id)
                 .select('id')
                 .first()
         // Verifica se o ID do usuário do params é o mesmo do usuário autenticado 
         // Se for ADM pode fazer update de qualquer maneira
-        if(user.id != userId.id  && !req.user.admin) {
+        if(req.params.id != userIdfromDB.id  && !req.user.admin) {
             return res.status(401).json({ error: 'Operation not permitted' })
         }
         try {
 
+            validation.existsOrError(user.name, 'Nome não informado')
+            validation.existsOrError(user.email, 'E-mail não informado')
+
             if(user.email) {
                 const userEmailFromDB = await connection('users')
                     .where('email', user.email)
-                    .whereNot('id', user.id)
+                    .whereNot('id', req.params.id)
                     .first()
                 
-                validation.notExistsOrError(userEmailFromDB, 'Email já cadastrado')
+                validation.notExistsOrError(userEmailFromDB, 'E-mail já cadastrado')
+            }
+
+            if (user.password || user.confirmPassword) {
+                validation.existsOrError(user.password, 'Senha não informada')
+                validation.existsOrError(user.confirmPassword, 'Confirmação de Senha inválida')
+                validation.equalsOrError(user.password, user.confirmPassword, 'Senhas não conferem')
+
+                user.password = encryptPassword(user.password)
             }
             
         } catch(msg) {
             return res.status(400).send(msg)
         }
 
-        if (!req.user.admin || user.password != undefined) {
-            try {
-                validation.existsOrError(user.password, 'Senha não informada')
-                validation.existsOrError(user.confirmPassword, 'Confirmação de Senha inválida')
-                validation.equalsOrError(user.password, user.confirmPassword, 'Senhas não conferem')
-            } catch(msg) {
-                return res.status(400).send(msg)
-            }
-            user.password = encryptPassword(user.password)  
+        let updatedUser = {
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            admin: user.admin,
         }
 
-        if(user.name == null || !this.user.name.trim()) delete user.name
-        if(user.email == null || !this.user.email.trim()) delete user.email
+        /* Remove qualquer atributo enviado por engano. Exemplo: uma string vazia */
+        if(user.password == null || !user.password.trim()) delete updatedUser.password
         delete user.confirmPassword
 
         connection('users')
-            .update(user)
-            .where('id', user.id)
+            .update(updatedUser)
+            .where('id', req.params.id)
             .then(_ => res.status(204).send())
             .catch(err => res.status(500).send(err))
     },

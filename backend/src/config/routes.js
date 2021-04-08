@@ -10,6 +10,10 @@ const AuthController = require('../controllers/AuthController')
 
 const routes = express.Router()
 
+const FacebookLogin = require('./facebookLogin')
+
+routes.post('/facebook', FacebookLogin.getFacebookAccessToken)
+
 routes.post('/signin', AuthController.signin)
 routes.post('/signup', UserController.create)
 routes.post('/validateToken', AuthController.validateToken)
@@ -25,6 +29,7 @@ routes.delete('/users/:id', passport.authenticate(), admin(UserController.delete
 routes.get('/track/:id', LyricController.getByTrackId)
 routes.put('/verify/:id', passport.authenticate(), admin(LyricIncController.verifyLyric))
 routes.post('/rating/:id', passport.authenticate(), LyricIncController.ratingLyric)
+routes.get('/rating/:id', passport.authenticate(), LyricIncController.getUserRate)
 
 routes.get('/comments/:id', CommentController.getByLyricId)
 routes.post('/comment/:id', passport.authenticate(), CommentController.create)

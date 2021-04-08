@@ -62,26 +62,27 @@
     }
 </script>
 
-<style>
+<style lang="scss">
+    @import "src/assets/styles/custom.scss";
 
 	* {
 		font-family: Avenir, Helvetica, Arial, sans-serif;
 	}
     html {
-        background: ghostwhite;
+        background: $mainBackground;
     }
 	body {
 		margin: 0;
 	}
-    h3 {
-        color: #ce93d8;
+    .h3-title {
+        color: $primary;
     }
 
     #app {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
 
-        background: ghostwhite;   
+        background: $mainBackground;   
 
 		height: 100vh;
 		display: grid;

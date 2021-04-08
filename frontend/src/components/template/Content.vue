@@ -10,16 +10,16 @@
     }
 </script>
 
-<style>
+<style lang="scss">
+    @import "../../assets/styles/custom.scss";
+    
     .content {
         grid-area: content;
-        background-color: ghostwhite;
+        background-color: $mainBackground;
         width: 80%;
         margin: auto;
         height: 100%;
         padding: 20px;
         box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);      
     }
-
-
 </style>

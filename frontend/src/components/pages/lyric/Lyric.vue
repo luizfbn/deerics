@@ -7,13 +7,20 @@
         <router-link :to="{ name: 'track', params: { id: trackId } }"><i class="fa fa-arrow-circle-left"></i> Voltar</router-link>
 
         <!-- Título, datas e avaliações -->
-        <h3 class="text-center mb-1">{{ lyricInfo.title }} <i v-if="lyricInfo.verified" class="fa fa-check-circle"></i></h3>
+        <h3 class="text-center mb-1 h3-title">{{ lyricInfo.title }} <i v-if="lyricInfo.verified" class="fa fa-check-circle" style="color:#007bff"></i></h3>
         <b-row class="text-muted" align-h="center">
             Por: <router-link :to="{ name: 'user', params: { id: lyricInfo.user_id } }">{{ lyricInfo.name }}</router-link>
         </b-row>
         <b-row class="text-muted" align-h="center" align-v="center">
-            <b-button :disabled="!user" @click="rateLyric(1)" variant="secondary" class="m-1"><i class="fa fa-thumbs-up"></i></b-button>{{ lyricInfo.likes }}
-            <b-button :disabled="!user" @click="rateLyric(0)" variant="secondary" class="m-1"><i class="fa fa-thumbs-down"></i></b-button>{{ lyricInfo.dislikes }}
+            <b-button :disabled="!user" @click="rateLyric(1)" :variant="likeButtonColor" class="m-1"><i class="fa fa-thumbs-up"></i></b-button>{{ lyricInfo.likes }}
+            <b-button :disabled="!user" @click="rateLyric(0)" :variant="dislikeButtonColor" class="m-1"><i class="fa fa-thumbs-down"></i></b-button>{{ lyricInfo.dislikes }}
+        </b-row>
+        <!-- Botão para administador verificar letra -->
+        <b-row v-if="user && user.admin" class="text-muted mr-3" align-h="end">
+            <b-button @click="verifyLyric(!lyricInfo.verified)" :variant="lyricInfo.verified? 'outline-danger' : 'info'" class="mt-1 mb-1">
+                <span v-if="lyricInfo.verified">Remover verificado</span>
+                <span v-else>Verificar letra</span>
+            </b-button>
         </b-row>
         <b-row class="text-muted mr-3" align-h="end">
             Criado em: {{ lyricInfo.created_at | convertDate }}
@@ -24,41 +31,38 @@
 
         <!-- Conteúdo e tradução -->
         <b-row>
-            <b-col class="lyric-content m-3" v-html="lyricInfo.content"></b-col>
+            <b-col class="lyric-content text-primary m-3" v-html="lyricInfo.content"></b-col>
             <b-col class="lyric-content m-3 lyric-translate text-muted" v-html="lyricInfo.translation ? lyricInfo.translation : 'Tradução não disponível'"></b-col>
         </b-row>
         
         <!-- Editar -->
-        <b-button v-b-toggle.collapse-1 variant="primary" class="mb-3 mt-3" v-if="user && user.id == lyricInfo.user_id">Editar</b-button>
-        <b-collapse id="collapse-1" v-if="user && user.id == lyricInfo.user_id">
-            <b-form>
+        <b-button v-b-toggle.collapse-1 variant="primary" class="mb-3 mt-3" v-if="user && (user.id == lyricInfo.user_id || user.admin)">Editar</b-button>
+        <b-collapse id="collapse-1" v-if="user && (user.id == lyricInfo.user_id || user.admin)">
+            <b-form @submit="saveLyric">
                 <div v-if="!removeMode">
-                    <b-form-group label="Conteúdo:" label-for="lyric-content">
-                        <VueEditor v-model="lyricInfo.content" 
-                                placeholder="Informe o Conteúdo da letra" />
-                    </b-form-group>
-
-                    <b-button v-b-toggle.collapse-2 variant="primary" class="mb-3">Tradução</b-button>
-                    <b-collapse id="collapse-2" class="mt-2">
-                        <b-form-group  label="Tradução:" label-for="lyric-translate">
-                            <VueEditor v-model="lyricInfo.translation" 
-                                    placeholder="Informe a tradução da letra (opcional)" />
-                        </b-form-group>
-                    </b-collapse>
-
                     <b-form-group label="Título da letra:" label-for="lyric-title">
                                 <b-form-input id="lyric-title" type="text"
                                     v-model="lyricInfo.title" required
                                     placeholder="Informe o título da letra" />
-                    </b-form-group>   
+                    </b-form-group>  
 
-                    <b-row class="mt-2">
-                        <b-col xs="12">
-                            <b-button variant="primary" class="mr-2"
-                                @click="saveLyric">Salvar</b-button>
-                            <b-button variant="danger"
-                                @click="removeMode = true">Excluir letra</b-button>
-                        </b-col>
+                    <b-form-group label="Conteúdo:" label-for="lyric-content">
+                        <VueEditor v-model="lyricInfo.content"
+                                placeholder="Informe o conteúdo da letra" />
+                    </b-form-group>
+
+                    <b-button v-b-toggle.collapse-2 variant="primary" class="mb-3">Tradução (opcional)</b-button>
+                    <b-collapse id="collapse-2">
+                        <b-form-group  label="Tradução:" label-for="lyric-translate">
+                            <VueEditor v-model="lyricInfo.translation" 
+                                    placeholder="Informe a tradução da letra (opcional)" />
+                        </b-form-group>
+                    </b-collapse> 
+
+                    <b-row class="mt-2" align-h="end">
+                            <b-button variant="danger" class="mr-2" @click="removeMode = true">Excluir letra</b-button>
+                            <b-button v-b-toggle.collapse-1 variant="outline-danger" class="mr-2" @click="loadLyric()">Cancelar</b-button>
+                            <b-button type="submit" variant="outline-success" class="mr-3">Salvar</b-button>
                     </b-row> 
                 </div>
 
@@ -69,7 +73,7 @@
                     <b-row class="mt-2" align-h="center">
                         <b-button variant="danger" class="mr-2"
                             @click="removeLyric">Excluir letra</b-button>
-                        <b-button v-if="removeMode" variant="secondary" @click="removeMode = false">Cancelar</b-button>
+                        <b-button v-b-toggle.collapse-1 v-if="removeMode" variant="secondary" @click="removeMode = false, loadLyric()">Cancelar</b-button>
                     </b-row>
                 </div>  
 
@@ -104,12 +108,15 @@
                 lyricId: this.$route.params.lyricId,
                 trackInfo: {},
                 artistInfo: {},
-                lyricInfo: {}
+                lyricInfo: {},
+                likeButtonColor: 'secondary',
+                dislikeButtonColor: 'secondary'
             }
         },
         created(){
             this.loadTrackInfo(),
-            this.loadLyric()
+            this.loadLyric(),
+            this.userRate()
         },
         filters: {
             convertDate(date) {
@@ -156,6 +163,35 @@
                 axios.post(`${baseApiUrl}/rating/${this.lyricId}`, { rating: rate })
                     .then(() => {
                         this.$toasted.global.defaultSuccess()
+                        this.userRate()
+                        this.loadLyric()
+                    })
+                    .catch(showError)
+            },
+            userRate() {
+                if(this.user){
+                    axios.get(`${baseApiUrl}/rating/${this.lyricId}`)
+                    .then(res =>{
+                        if(res.data) {
+                            if(res.data.rating == 1) {
+                                this.likeButtonColor = 'success'
+                                this.dislikeButtonColor = 'secondary'
+                            } else {
+                                this.likeButtonColor = 'secondary'
+                                this.dislikeButtonColor = 'danger'
+                            }
+                        } else {
+                            this.likeButtonColor = 'secondary'
+                            this.dislikeButtonColor = 'secondary'
+                        }
+                    })
+                    .catch(error => console.log(error))
+                }
+            },
+            verifyLyric(verify) {
+                axios.put(`${baseApiUrl}/verify/${this.lyricId}`, { verified: verify })
+                    .then(() => {
+                        this.$toasted.global.defaultSuccess()
                         this.loadLyric()
                     })
                     .catch(showError)
@@ -164,14 +200,14 @@
     }
 </script>
 
-<style>
+<style lang="scss">
+    @import "../../../assets/styles/custom.scss";
 
     .lyric-content {
         padding: 25px;
-        color: #ce93d8;
-        background-color: #FFF;
+        background-color: $background;
         border-radius: 5px;
-        box-shadow: 0px 0px 2px #ce93d8;
+        box-shadow: 0px 0px 2px $primary;
     }
     .lyric-content > img {
         max-width: 100%;
@@ -185,5 +221,4 @@
     .lyric-translate {
         box-shadow: 0px 0px 2px grey;
     }
-
 </style>

@@ -5,7 +5,7 @@
     <div v-else>
 
         <!-- Título -->
-        <div class="album-header">
+        <div class="album-header text-primary">
             <img :src="albumInfo.cover" alt="Imagem do album">
             <div>
                 <h1>{{ albumInfo.title }}</h1>
@@ -57,11 +57,9 @@
 </script>
 
 <style>
-
     .album-header {
         display: flex;
         align-items: center;
-        color: #ce93d8;
     }
     .album-header > div {
         display: flex;
@@ -71,7 +69,6 @@
         border-radius: 10px;
         margin-right: 10px;
     }
-
     h1 {
         margin: 0px;
     }
@@ -80,6 +77,5 @@
     }
     h2 > a:hover {
         text-decoration: none;
-    }
-    
+    } 
 </style>

@@ -18,22 +18,21 @@
 	}
 </script>
 
-<style>
+<style lang="scss">
+	@import "../../assets/styles/custom.scss";
 
 	li {
 		list-style: none;
 		margin: 5px;
 	}
-
 	.track-card {
 		display: flex;
 		align-items: center;
 		padding: 5px;
 		width: 250px;
 		height: 100%;
-
 		border-radius: 5px;
-		background-color: #FFF;
+		background-color: $background;
         box-shadow: 0px 0px 2px grey;
 	}
 	.track-card:hover {
@@ -41,12 +40,10 @@
 		border-radius: 5px;
 		text-decoration: none;
 	}
-
 	.track-card > span.track-position {
 		padding: 5px 10px;
 		font-size: 2.2rem;
 	}
-
 	.track-card > img {
 		border-radius: 50%;
 		margin-right: 5px;
@@ -55,12 +52,10 @@
 		border-radius: 50%;
 		margin-right: 5px;
 	}
-
 	.track-cardInfo {
 		display: flex;
 		flex-direction: column;
 		padding: 5px;
 		max-width: 200px;
 	}
-
 </style>

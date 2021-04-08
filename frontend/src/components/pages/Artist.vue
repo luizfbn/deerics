@@ -11,13 +11,13 @@
         </div>
         <hr>
 
-        <h3>Top tracks</h3>
+        <h3 class="h3-title">Top tracks</h3>
         <hr>
         <b-row align-h="center" class="m-2">
             <TrackCard v-for="track in topTracks" :key="track.id" :track="track" />
         </b-row>
         
-        <h3>Álbums</h3>
+        <h3 class="h3-title">Álbums</h3>
         <hr>
         <b-row align-h="center" class="m-2">
             <p v-if="albumList.length < 1"> Conteúdo não encontrado </p>
@@ -83,20 +83,16 @@
 </script>
 
 <style>
-
     .artist-header {
         display: flex;
         align-items: center;
     }
-
     .artist-header > img {
         border-radius: 100%;
         margin-right: 10px;
     }
-
     h3 {
         margin: 5px;
         margin-top: 10px;
     }
-
 </style>

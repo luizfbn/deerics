@@ -9,7 +9,7 @@
 
             <!-- Informações sobre a track -->
             <b-col md="7" sm="12" class="lyric-info">
-                <h3 class="text-center">{{ trackInfo.title }}</h3>
+                <h3 class="text-center h3-title" >{{ trackInfo.title }}</h3>
                 <img :src="albumInfo.cover" alt="Imagem da música">
                 <b-list-group>
                     <b-list-group-item>Artista: <router-link v-if="artistInfo.id" :to="{ name: 'artist', params: { id: artistInfo.id } }">{{ artistInfo.name }}</router-link></b-list-group-item>
@@ -37,37 +37,42 @@
             <div class="w-100"></div>
 
             <!-- Criar uma nova letra -->
-            <b-col class="p-0" v-if="user">
-                <b-button v-b-toggle.collapse-1 variant="primary" class="mb-3 mt-3">Criar letra</b-button>
-                <b-collapse id="collapse-1" class="mt-2">
-                    <b-form>
+            <div v-if="user">
+                <b-button v-b-modal.modal-prevent-closing variant="primary" class="mb-3 mt-3">Criar letra</b-button>
+
+                <b-modal
+                id="modal-prevent-closing"
+                title="Criar letra para a música"
+                hide-footer
+                >
+                    <b-form @submit="createLyric()">
+                        <b-form-group label="Título da letra:" label-for="lyric-title">
+                                    <b-form-input id="lyric-title" type="text" 
+                                        v-model="lyricInfo.title"
+                                        placeholder="Informe o título da letra" />
+                        </b-form-group>
+
                         <b-form-group  label="Conteúdo:" label-for="lyric-content">
                             <VueEditor v-model="lyricInfo.content" 
                                     placeholder="Informe o Conteúdo da letra" />
                         </b-form-group>
 
-                        <b-button v-b-toggle.collapse-2 variant="primary" class="mb-3">Tradução</b-button>
-                        <b-collapse id="collapse-2" class="mt-2">
+                        <b-button v-b-toggle.collapse-2 variant="primary" class="mb-3">Faça sua tradução (opcional)</b-button>
+                        <b-collapse id="collapse-2">
                             <b-form-group  label="Tradução:" label-for="lyric-translate">
                                 <VueEditor v-model="lyricInfo.translation"
                                         placeholder="Informe a tradução da letra (opcional)" />
                             </b-form-group>
                         </b-collapse>
-
-                        <b-form-group label="Título da letra:" label-for="lyric-title">
-                                    <b-form-input id="lyric-title" type="text" 
-                                        v-model="lyricInfo.title" required
-                                        placeholder="Informe o título da letra" />
-                        </b-form-group>
                     
-                        <b-row class="mt-2">
-                            <b-col xs="12">
-                                <b-button variant="primary" @click="createLyric">Criar</b-button>
-                            </b-col>
+                        <b-row class="mt-2" align-h="end">
+                                <b-button class="mr-2" variant="outline-danger" @click="$bvModal.hide('modal-prevent-closing')">Cancelar</b-button>
+                                <b-button type="submit"  class="mr-3" variant="outline-success">Salvar</b-button>
                         </b-row>
                     </b-form>
-                </b-collapse>
-            </b-col>
+                </b-modal>
+
+            </div>  
         </b-row>
         
     </div>
@@ -136,6 +141,7 @@
                         this.loading = true
                         this.loadMore = true
                         this.currentPage = 1
+                        this.lyricInfo = { track_id: this.$route.params.id }
                         this.loadLyrics()
                     })
                     .catch(showError)
@@ -144,13 +150,14 @@
     }
 </script>
 
-<style>
+<style lang="scss">
+    @import "../../assets/styles/custom.scss";
 
     .lyric-info {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        background-color: #FFF;
+        background-color: $background;
         border-radius: 5px;
         box-shadow: 0px 0px 2px grey;
         padding: 20px;
@@ -161,7 +168,6 @@
         margin: 15px;
         border-radius: 25px;
     }
-
     .lyric-list {
         height: 510px;
         overflow-y: auto;

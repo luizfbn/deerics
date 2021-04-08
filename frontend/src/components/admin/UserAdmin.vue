@@ -98,6 +98,9 @@
 
         <!-- Tabela -->
         <b-table hover striped head-variant="light" :items="users" :fields="fields" per-page="0" :current-page="currentPage">
+            <template v-slot:cell(link)="data">
+                <router-link :to="{ name: 'user', params: { id: data.item.id} }">Acesse</router-link>
+            </template>
             <template v-slot:cell(actions)="data">
                 <b-button variant="warning" @click="loadUser(data.item)" class="mr-2">
                     <i class="fa fa-pencil"></i>
@@ -129,6 +132,7 @@
                     { key: 'email', label: 'E-mail', sortable: true },
                     { key: 'admin', label: 'Administrador', sortable: true,
                         formatter: value => value ? 'Sim' : 'Não' },
+                    { key: 'link', label: 'Link', sortable: false },
                     { key: 'actions', label: 'Ações' }
                 ],
                 currentPage: 1,

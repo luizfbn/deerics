@@ -17,6 +17,8 @@ module.exports = {
             .select(['lyrics.id',
                     'lyrics.track_id',
                     'lyrics.title',
+                    'lyrics.content',
+                    'lyrics.translation',
                     'lyrics.created_at',
                     'lyrics.modified_at', 
                     'lyrics.likes',
@@ -66,7 +68,7 @@ module.exports = {
 
         connection('lyrics')
             .join('users', 'users.id', '=', 'lyrics.user_id')
-            .orderBy('lyrics.verified')
+            .orderBy([{ column: 'lyrics.verified', order: 'desc' }, { column: 'lyrics.likes', order: 'desc' }])
             .where('track_id', trackId)
             .limit(pagination)
             .offset((page - 1) * pagination)
@@ -119,12 +121,23 @@ module.exports = {
 
         if(!req.user.admin && lyric.verified != undefined) lyric.verified = false
 
+        try {
+            validation.existsOrError(lyric.title, 'Título não informado')
+            validation.existsOrError(lyric.content, 'Conteúdo não informado')
+        } catch(msg) {
+            return res.status(400).send(msg)
+        }
+
+        let updatedLyric = { 
+            title: lyric.title,
+            content: lyric.content,
+            translation: lyric.translation,
+            verified: lyric.verified,
+            modified_at: new Date() 
+        }
+ 
         connection('lyrics')
-            .update({ title: lyric.title,
-                    content: lyric.content,
-                    translation: lyric.translation,
-                    verified: lyric.verified,
-                    modified_at: new Date() })
+            .update(updatedLyric)
             .where('id', req.params.id)
             .then(_ => res.status(204).send())
             .catch(err => res.status(500).send(err)) 

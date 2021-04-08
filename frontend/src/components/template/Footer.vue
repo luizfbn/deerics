@@ -1,6 +1,6 @@
 <template>
     <footer class="footer">
-        <span>{{ title }} - © 2020</span>
+        <span>{{ title }} - © 2021</span>
         <div class="deezerFooter">
             <span>Explore mais sobre música em:</span>
             <a href="https://www.deezer.com/br/">
@@ -20,19 +20,19 @@
     }
 </script>
 
-<style>
+<style lang="scss">
+    @import "../../assets/styles/custom.scss";
+    
     .footer {
         grid-area: footer;
-        background-color: #343a40;
-        color: ghostwhite;
+        background-color: $dark;
+        color: $mainBackground;
         flex-direction: column;
-
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 10px;
     }
-
     .deezerFooter {
         display: flex;
         flex-direction: column;

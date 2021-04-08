@@ -5,7 +5,7 @@
         <div class="home-content">
 
             <!-- Top tracks -->
-            <h3 class="m-2 mt-4">Top tracks</h3>
+            <h3 class="m-2 mt-4 h3-title">Top tracks</h3>
             <hr>
             <b-row align-h="center" class="m-2 mb-4">
                 <b-spinner v-if="loading" variant="primary" label="Loading..."></b-spinner>
@@ -17,7 +17,7 @@
 
             <!-- Top artistas -->
             <b-row align-h="between" class="m-2">
-                <h3 class="ml-0">Top artistas</h3>
+                <h3 class="ml-0 h3-title">Top artistas</h3>
                 <router-link class="see-more" to="/topartists">Ver mais artistas <i class="fa fa-long-arrow-right"></i></router-link>
             </b-row>
             <hr>
@@ -27,7 +27,7 @@
             </b-row>
             
             <!-- Letras recentes -->
-            <h3 class="m-2">Letras recentes</h3>
+            <h3 class="m-2 h3-title">Letras recentes</h3>
             <hr>
             <b-row align-h="center" class="m-2">
                 <b-spinner v-if="loading" variant="primary" label="Loading..."></b-spinner>

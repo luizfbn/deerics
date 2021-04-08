@@ -41,7 +41,7 @@
         <b-form class="mt-3" v-if="user">
             <b-form-textarea
                 v-model="commentInfo.comment"
-                placeholder="Faça seu comentário :)"
+                placeholder="Faça um comentário :)"
                 rows="3"
                 no-resize
                 ></b-form-textarea>

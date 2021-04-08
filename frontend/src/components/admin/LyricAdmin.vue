@@ -27,10 +27,17 @@
                 <b-form-radio v-model="lyric.verified" value=1 >Verificada</b-form-radio>
             </b-form-radio-group>
 
-            <b-form-group v-if="mode === 'save' && !lyric.id"
+            <b-form-group v-if="mode === 'save'"
                 label="Conteúdo:" label-for="lyric-content">
                 <VueEditor v-model="lyric.content" placeholder="Informe o Conteúdo da letra" />
             </b-form-group>
+            <b-button v-if="mode === 'save'" v-b-toggle.collapse-2 variant="primary" class="mb-3">Tradução (opcional)</b-button>
+                <b-collapse id="collapse-2">
+                <b-form-group  label="Tradução:" label-for="lyric-translate">
+                    <VueEditor v-model="lyric.translation" 
+                            placeholder="Informe a tradução da letra (opcional)" />
+                </b-form-group>
+            </b-collapse> 
 
             <b-row>
                 <b-col xs="12">
@@ -46,6 +53,9 @@
 
         <!-- Tabela -->
         <b-table hover striped head-variant="light" :items="lyrics" :fields="fields" per-page="0" :current-page="currentPage">
+            <template v-slot:cell(link)="data">
+                <router-link :to="{ name: 'lyric', params: { trackId: data.item.track_id, lyricId: data.item.id} }">Acesse</router-link>
+            </template>
             <template v-slot:cell(actions)="data">
                 <b-button variant="warning" @click="loadLyric(data.item)" class="mr-2">
                     <i class="fa fa-pencil"></i>
@@ -82,6 +92,7 @@
                         formatter: value => value ? 'Sim' : 'Não' },
                     { key: 'created_at', label: 'Criação', sortable: true,
                         formatter: value => moment(value).format("DD-MM-YYYY HH:mm:ss") },
+                    { key: 'link', label: 'Link', sortable: false },
                     { key: 'actions', label: 'Ações' }
                 ],
                 currentPage: 1,

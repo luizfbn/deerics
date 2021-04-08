@@ -1,6 +1,15 @@
-$purple: #ce93d8;
+$purple: #a56caf;
+$lightBlack: #343a40;
+$blue: #007bff;
+$green: #42af26;
+$mainBackground: #f8f8ff;
+$background: #fff;
 
+/* Variáveis bootstrap */
+$info: $blue;
 $primary: $purple;
+$success: $green;
+$dark: $lightBlack;
 
 @import 'node_modules/bootstrap/scss/bootstrap';
 @import 'node_modules/bootstrap-vue/src/index.scss';

@@ -67,6 +67,19 @@ module.exports = {
             .where('id', lyricId)
             .then(_ => res.status(204).send())
             .catch(err => res.status(500).send(err))
+    },
+
+    getUserRate(req, res) {
+        const lyricId = req.params.id
+
+        connection('lyrics_rating')
+                .where('user_id', req.user.id)
+                .andWhere('lyric_id', lyricId)
+                .select(['lyrics_rating.*'])
+                .first()
+                .then(rate => res.json(rate))
+                .catch(err => res.status(500).send(err))
+
     }
 
 }
