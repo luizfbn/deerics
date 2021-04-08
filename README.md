@@ -27,3 +27,5 @@ And in /frontend:
 ```
 npm run serve
 ```
+
+**To activate login with facebook, you must create an app on [Facebook for developers](https://developers.facebook.com/docs/development/create-an-app) and rename the file .env.example to .env in both folders (/backend and /frontend) and fill in the required fields.*
